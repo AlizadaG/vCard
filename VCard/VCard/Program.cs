@@ -21,7 +21,7 @@ class Program
                 }
                 else
                 {
-                    HttpResponseMessage response = await client.GetAsync($"https://randomuser.me/api/?results={count}");
+                    HttpResponseMessage response = await client.GetAsync($"https://randomuser.me/api/?nat=us,fr,tr&results={count}");
                     response.EnsureSuccessStatusCode();
 
                     string responseBody = await response.Content.ReadAsStringAsync();
@@ -37,27 +37,7 @@ class Program
 
                     foreach (var user in resultData.Results)
                     {
-                        StringBuilder card = new StringBuilder();
-                        card.Append($@"BEGIN:VCARD
-                                VERSION:4.0
-                                N:{user.Name.First};{user.Name.Last};;;
-                                FN:{user.Name.First} {user.Name.Last}
-                                TEL;TYPE=work,voice;VALUE=uri:tel:{user.Phone}
-                                TEL;TYPE=home,voice;VALUE=uri:tel:{user.Phone}
-                                ADR;TYPE=WORK:;;{user.Location.Country};;{user.Location.City}
-                                EMAIL:{user.Email}
-                                REV:20080424T195243Z
-                                END:VCARD");
-
-                        string fileNameVcf = $"{user.Name.First}-{user.Name.Last}.{user.Id.Value}.vcf";
-                        string filePathVcf = Path.Combine(vcfPath, fileNameVcf);
-                        File.WriteAllTextAsync(filePathVcf, card.ToString());
-
-                        string fileNameTxt = $"{user.Name.First}-{user.Name.Last}.{user.Id.Value}.txt";
-                        string filePathTxt = Path.Combine(txtPath, fileNameTxt);
-                        File.WriteAllTextAsync(filePathTxt, card.ToString());
-
-                        Console.WriteLine($"{user.Name.First} {user.Name.Last} isimli userin vCard dosyasinin yolu :{filePathVcf}");
+                        CreateCard(user, vcfPath, txtPath);
                     }
                 }                
             }
@@ -69,5 +49,29 @@ class Program
         catch(Exception message) {
             Console.WriteLine("Sayıyı doğru formatda dahil ediniz. Hata mesajı:" + message);
         }
+    }
+    public static void CreateCard(vCard user, string vcfPath, string txtPath)
+    {
+        StringBuilder card = new StringBuilder();
+        card.Append($@"BEGIN:VCARD
+                    VERSION:4.0
+                    N:{user.Name.First};{user.Name.Last};;;
+                    FN:{user.Name.First} {user.Name.Last}
+                    TEL;TYPE=work,voice;VALUE=uri:tel:{user.Phone}
+                    TEL;TYPE=home,voice;VALUE=uri:tel:{user.Phone}
+                    ADR;TYPE=WORK:;;{user.Location.Country};;{user.Location.City}
+                    EMAIL:{user.Email}
+                    REV:20080424T195243Z
+                    END:VCARD");
+
+        string fileName = $"{user.Name.First}-{user.Name.Last}.{user.Id.Value}";
+
+        string filePathVcf = Path.Combine(vcfPath, $"{fileName}.vcf");
+        File.WriteAllTextAsync(filePathVcf, card.ToString());
+
+        string filePathTxt = Path.Combine(txtPath, $"{fileName}.txt");
+        File.WriteAllTextAsync(filePathTxt, card.ToString());
+
+        Console.WriteLine($"{user.Name.First} {user.Name.Last} isimli userin vCard dosyasinin yolu : {filePathVcf}");
     }
 }
