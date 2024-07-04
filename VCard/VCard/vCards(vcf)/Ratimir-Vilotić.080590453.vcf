@@ -1,0 +1,10 @@
+BEGIN:VCARD
+                                VERSION:4.0
+                                N:Ratimir;Vilotić;;;
+                                FN:Ratimir Vilotić
+                                TEL;TYPE=work,voice;VALUE=uri:tel:029-3897-550
+                                TEL;TYPE=home,voice;VALUE=uri:tel:029-3897-550
+                                ADR;TYPE=WORK:;;Serbia;;Čajetina
+                                EMAIL:ratimir.vilotic@example.com
+                                REV:20080424T195243Z
+                                END:VCARD
