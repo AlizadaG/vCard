@@ -16,11 +16,13 @@ class Program
             using HttpClient client = new HttpClient();
             try
             {
+                //Api request zamani hata vermemesi icin istek sayisi 2000 olarak limitlendi ve eksi sayı girmesi önlendi
                 if (count > 2000 || count <= 0) {
-                    Console.WriteLine("Girdiginiz sayi 0 ile 2000 arasinda olmak zorunda!!!");
+                    Console.WriteLine("Girdiğiniz sayı 0-dan büyük olmak zorunda ve maksiumum 2000 adet kişi ala bilirisiniz!!!");
                 }
                 else
                 {
+                    //Kullanicinin girdiği sayı dahilinde ulusal kimlikleri (us,fr,tr) olak filtrelenerek istek gönderildi
                     HttpResponseMessage response = await client.GetAsync($"https://randomuser.me/api/?nat=us,fr,tr&results={count}");
                     response.EnsureSuccessStatusCode();
 
@@ -29,14 +31,17 @@ class Program
                     {
                         PropertyNameCaseInsensitive = true
                     };
-
+                    //API den alınan data deserialize edildi
                     var resultData = JsonSerializer.Deserialize<Result>(responseBody, options);
+
+                    //Dosyayi kaydetmek için belirtilmiş dosyalarin yollari bulundu
                     string parentDirectory = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\.."));
                     string vcfPath = Path.Combine(parentDirectory, "vCards(vcf)"),
                         txtPath = Path.Combine(parentDirectory, "vCards(txt)");
 
                     foreach (var user in resultData.Results)
                     {
+                        // Her bir userin vCardını oluşturmak için metoda apiden alinan degerler ve dosya yollari gonderildi
                         CreateCard(user, vcfPath, txtPath);
                     }
                 }                
@@ -50,6 +55,12 @@ class Program
             Console.WriteLine("Sayıyı doğru formatda dahil ediniz. Hata mesajı:" + message);
         }
     }
+    /// <summary>
+    /// vCard oluşturmak için 
+    /// </summary>
+    /// <param name="user">User datası</param>
+    /// <param name="vcfPath">vcf dosyaların kaydetmek için yol</param>
+    /// <param name="txtPath">txt dosyaların kaydetmek için yol</param>
     public static void CreateCard(vCard user, string vcfPath, string txtPath)
     {
         StringBuilder card = new StringBuilder();
